@@ -1,0 +1,21 @@
+# Python bytecode and test/tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Local virtual environments and editor settings
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Local databases, collected media, and environment secrets
+db.sqlite3
+media/
+.env
+.env.*
+
+# Operating-system files
+.DS_Store
+Thumbs.db

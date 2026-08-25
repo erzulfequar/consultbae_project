@@ -1,0 +1,8 @@
+Django==5.1.6
+mssql-django==1.5
+mutagen==1.48.1
+soundfile==0.14.0
+requests==2.31.0
+numpy==2.2.3
+pandas==2.2.3
+gunicorn==23.0.0
