@@ -96,58 +96,22 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = "core.wsgi.application"
+
 
 
 # --------------------------------------------------
 # DATABASE
 # --------------------------------------------------
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.environ["DATABASE_URL"]
 
-if DATABASE_URL:
-    # ==============================================
-    # RENDER / PRODUCTION
-    # PostgreSQL
-    # ==============================================
-
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-
-else:
-    # ==============================================
-    # LOCAL DEVELOPMENT
-    # Microsoft SQL Server
-    # ==============================================
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "mssql",
-            "NAME": os.getenv(
-                "DB_NAME",
-                "AssignmentDB"
-            ),
-            "HOST": os.getenv(
-                "DB_HOST",
-                r"localhost\SQLEXPRESS"
-            ),
-            "OPTIONS": {
-                "driver": os.getenv(
-                    "ODBC_DRIVER",
-                    "ODBC Driver 18 for SQL Server"
-                ),
-                "extra_params": os.getenv(
-                    "DB_EXTRA_PARAMS",
-                    "TrustServerCertificate=yes;Encrypt=no"
-                ),
-            },
-        }
-    }
+DATABASES = {
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 
 # --------------------------------------------------
