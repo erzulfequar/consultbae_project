@@ -2,8 +2,6 @@ Django==5.1.6
 dj-database-url==2.3.0
 psycopg[binary]==3.2.6
 whitenoise==6.9.0
-# Required only for the local SQL Server fallback when DATABASE_URL is absent.
-mssql-django==1.5
 mutagen==1.48.1
 soundfile==0.14.0
 requests==2.31.0
