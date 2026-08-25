@@ -1,10 +1,10 @@
 Django==5.1.6
 dj-database-url==2.3.0
-psycopg[binary]==3.2.6
+psycopg[binary]>=3.3.4
 whitenoise==6.9.0
 mutagen==1.48.1
 soundfile==0.14.0
 requests==2.31.0
-numpy==2.2.3
-pandas==2.2.3
+numpy>=2.4.0
+pandas>=3.0.0
 gunicorn==23.0.0
