@@ -2,6 +2,7 @@
 
 import csv
 import io
+import logging
 import re
 
 from django.conf import settings
@@ -17,6 +18,8 @@ from peopleData.utils import clean_city, clean_email, clean_name, clean_phone, c
 from .analysis import extract_audio_analysis
 from .models import AudioSubmission
 
+
+logger = logging.getLogger(__name__)
 
 MAX_AUDIO_BYTES = 20 * 1024 * 1024
 ALLOWED_AUDIO_TYPES = {
@@ -140,7 +143,13 @@ def collect_audio(request):
         )
         # Do not rely on browser metadata: analyse the file after storage so
         # every accepted upload has server-derived values.
-        analysis = extract_audio_analysis(submission.audio_file.path)
+        try:
+            analysis = extract_audio_analysis(submission.audio_file.path)
+        except Exception:
+            # Metadata extraction depends on native audio decoders. A decoder
+            # failure must not discard an otherwise valid user upload.
+            logger.exception("Audio analysis failed for submission %s", submission.pk)
+            analysis = {}
         if analysis:
             for field, value in analysis.items():
                 setattr(submission, field, value)
@@ -192,4 +201,3 @@ def forward_csv_to_n8n(request):
         status=response.status_code,
         content_type=response.headers.get("Content-Type", "application/json"),
     )
-
