@@ -208,13 +208,26 @@ class Command(BaseCommand):
         with transaction.atomic():
             PersonSourceRecord.objects.all().delete()
             ImportIssue.objects.all().delete()
-            Person.objects.all().delete()
+            Person.objects.filter(audio_submissions__isnull=True).delete()
             for merged in merged_people:
                 source_rows = tuple(merged["source_rows"].split(", "))
                 source_summary = merged["sources"]
-                person = Person.objects.create(
-                    **{field: merged[field] for field in fields}, source_summary=source_summary
-                )
+                person = None
+                if merged["email"]:
+                    person = Person.objects.filter(email__iexact=merged["email"]).order_by("id").first()
+                if person is None and merged["phone"]:
+                    person = Person.objects.filter(phone=merged["phone"]).order_by("id").first()
+                if person is None and merged["name"]:
+                    person = Person.objects.filter(name__iexact=merged["name"]).order_by("id").first()
+                if person is None:
+                    person = Person.objects.create(
+                        **{field: merged[field] for field in fields}, source_summary=source_summary
+                    )
+                else:
+                    for field in fields:
+                        setattr(person, field, merged[field])
+                    person.source_summary = source_summary
+                    person.save(update_fields=fields + ("source_summary",))
                 PersonSourceRecord.objects.bulk_create([
                     PersonSourceRecord(
                         person=person, source=record["source"], source_row=record["row_number"], raw_data={},
