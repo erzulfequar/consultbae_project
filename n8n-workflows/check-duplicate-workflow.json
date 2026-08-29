@@ -1,0 +1,266 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "check-duplicate",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        96
+      ],
+      "id": "57831676-21e5-4a2c-8958-cfad7df27127",
+      "name": "Webhook",
+      "webhookId": "50d382c7-327d-4320-a8b4-5960018c096d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://consultbaeproject.onrender.com/api/check-duplicate/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{ $input.item.json.name }}\",\n  \"email\": \"{{ $input.item.json.email }}\",\n  \"phone\": \"{{ $input.item.json.phone }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        448,
+        96
+      ],
+      "id": "7b39b8b0-e01d-4c25-b8cc-52bb6c97632d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1120,
+        96
+      ],
+      "id": "97d3df61-f3ec-46ce-a388-83fefd68efc8",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "691e178d-6d9c-4a6b-80ca-6c42b5f18456",
+              "leftValue": "={{$json.duplicate}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        96
+      ],
+      "id": "58a54c14-e2ba-49fc-b28a-ad8b6ebb2ef8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1c8b3597-be38-44ec-888e-8c7473277971",
+              "name": "message",
+              "value": "No duplicate found - record can proceed",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        192
+      ],
+      "id": "75799491-f861-4d34-955c-9e5392599623",
+      "name": "No Duplicate Found"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c641757c-f720-43f1-8d6c-8cd3e34a7406",
+              "name": "message",
+              "value": "duplicate found dont proceed",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        0
+      ],
+      "id": "bbb9b587-8b5e-4f7f-b8b3-df82907c3e26",
+      "name": "duplicate found"
+    },
+    {
+      "parameters": {
+        "options": {
+          "delimiter": ","
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        96
+      ],
+      "id": "6df5b836-d4df-4374-a711-7e8bc1634d7b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.all().map(item => item.json);\n\nconst duplicates = results.filter(item => item.duplicate === true);\n\nreturn [\n  {\n    json: {\n      checked_count: results.length,\n      duplicate_count: duplicates.length,\n      duplicates: duplicates,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        -64
+      ],
+      "id": "4d8cd359-a872-46e0-a8f7-7fb21d8b0ed0",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "duplicate found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Duplicate Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Duplicate Found": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "duplicate found": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "116f6b43-ab15-4a5c-affa-0802b13bab72",
+  "meta": {
+    "instanceId": "bfc8ec9473f83c40d4d7da41bbbea75cf1d58a004a132a579d05ec760a1c87d7"
+  },
+  "id": "4P22RMnU1S00wD06",
+  "tags": []
+}
