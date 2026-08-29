@@ -31,7 +31,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # --------------------------------------------------
 
 ALLOWED_HOSTS = [
-    "consultbaeproject.onrender.com",
+    "consultbae-project.onrender.com",
     "localhost",
     "127.0.0.1",
 ]
@@ -47,6 +47,11 @@ if env_allowed_hosts:
             if host.strip()
         ]
     )
+
+# Render supplies this hostname automatically when the service is deployed.
+render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if render_hostname and render_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_hostname)
 
 
 # --------------------------------------------------
